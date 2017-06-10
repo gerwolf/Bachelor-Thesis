@@ -15,11 +15,11 @@
 \usepackage{url}
 \bibliographystyle{plaindin}      % BibTeX Styles nach Norm DIN 1505
 
-\renewenvironment{abstract}
+\renewenvironment{abstract}[1]
 % https://tex.stackexchange.com/questions/151583/how-to-adjust-the-width-of-abstract
  {\small
   \begin{center}
-  \bfseries \abstractname\vspace{-.6em}\vspace{0pt}
+  \bfseries #1\vspace{-.6em}\vspace{0pt}
   \end{center}
   \list{}{
     \setlength{\leftmargin}{.6cm}%
@@ -34,7 +34,7 @@
 \title{Feature Extraction for Business Entity Linking in Newspaper Articles
 \\ \bigskip 
 \large{Merkmalsextraktion zur Unternehmenserkennung in Zeitungsartikeln}}
-\author{Jonathan Janetzki\\{\small{\url{jonathan.janetzki@student.hpi.de}}}}
+\author{Jonathan Janetzki\\{\small{\url{jonjanetzki@gmail.com}}}}
 \date{July 21, 2017}
 \publishers{
 Information Systems Group\\
@@ -45,16 +45,15 @@ Toni Grütze\\
 Michael Loster}
 
 
-\pagestyle{headings}    % Seitenstil mit Kapitelüberschriften in der Kopfzeile
-
-
 \begin{document}
 \maketitle
 
 \newpage
 \include{sections/abstract}
 \newpage
-{\small\tableofcontents}
+%{\small\tableofcontents}
+\tableofcontents
+\addtocontents{toc}{\setcounter{tocdepth}{2}}
 \newpage
 \include{sections/section_1}
 \newpage
@@ -70,8 +69,10 @@ Michael Loster}
 \newpage
 \include{sections/section_7}
 \newpage
-\bibliography{References}
+\include{sections/references}
 \newpage
 \include{sections/glossary}
+\newpage
+\include{sections/statutory_declaration}
 
 \end{document}
