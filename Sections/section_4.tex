@@ -1,0 +1,30 @@
+\section{Features for Business Entity Linking}
+\subsection{CohEEL features}
+
+\subsubsection{Link score}
+Probability that alias is link\\
+(Technically just a probability on Wikipedia as a sample)
+
+\subsubsection{Page score}
+Probability that an alias points to a specific page
+
+\subsubsection{Link context score}
+Bag of words retrieved form the text around a link (currently +- 20 words)\\
+generate tf-idf vectors\\
+compute cosine similarity between link vectors and page vectors
+
+\subsection{Second order features}
+\subsubsection{Rank}
+\subsubsection{Difference to highest value}
+$\Delta top$
+\subsubsection{Difference to successive value}
+$\Delta successor$
+
+\subsection{Alternative contexts}
+Helpful if Wikipedia context for organization is missing
+\subsubsection{Sector context}
+e.g., for automobile industry
+\subsubsection{Location context}
+e.g., for Munich
+\subsubsection{Homepage context}
+e.g., Bag of words on \url{https://www.sap.com/index.html}

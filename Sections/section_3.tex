@@ -1,0 +1,41 @@
+\section{Text Mining Pipeline}
+Preprocesing on Wikipedia dump\\
+Explanation of jobs and their runtimes\\
+Tools: Stanford CoreNLP (Tokenizer), Apache Lucene (Stemmer)\\
+Data structures: Trie (for alias recognition)\\
+
+\subsection{Overview}
+see Fig. \ref{fig:job_dependencies}
+\begin{figure}[ht]
+	\centering
+  \includegraphics[width=0.7\textwidth]{job_dependencies.png}
+	\caption{Dependencies between the jobs of the text mining pipeline}
+	\label{fig:job_dependencies}
+\end{figure}
+
+\subsection{Raw data}
+\subsubsection{Wikipedia}
+for text and links\\
+German dump
+
+\subsubsection{Wikidata}
+for ontology: Which entity is a Business or an organization?\\
+German dump
+
+\subsection{Data preprocessing}
+
+\paragraph{Text parser}
+\paragraph{Link cleaner}
+\paragraph{Redirect resolver}
+\paragraph{Link analysis}
+\paragraph{Company link filter}
+\paragraph{Link extender}
+\paragraph{Trie builder}
+\paragraph{Alias trie search}
+\paragraph{Alias counter}
+\paragraph{Document frequency counter}
+\paragraph{Term frequency counter}
+\paragraph{Cosine context comparator}
+
+\subsection{Classifier training}
+details following in the next section

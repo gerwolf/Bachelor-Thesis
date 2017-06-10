@@ -1,2 +1,12 @@
 # Compiled .pdf
 *.pdf
+
+# TeXnicCenter files
+*.log
+*.bbl
+*.blg
+*.aux
+*.synctex
+*.tcp
+*.toc
+*.tps
