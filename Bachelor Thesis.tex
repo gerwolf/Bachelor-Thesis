@@ -28,6 +28,13 @@
   \item\relax}
  {\endlist}
 
+\newcommand{\sign}[1]{
+	%https://tex.stackexchange.com/questions/183698/signature-line-with-dots-and-name-below      
+  \begin{tabular}[t]{@{}l@{}}
+  \makebox[2.5in]{\dotfill}\\
+  \strut#1\strut
+  \end{tabular}
+}
 \titlehead{
 \includegraphics{Graphics/hpi_logo_cmyk_wb_sl2}
 } \subject{Bachelor Thesis}
@@ -35,7 +42,7 @@
 \\ \bigskip 
 \large{Merkmalsextraktion zur Unternehmenserkennung in Zeitungsartikeln}}
 \author{Jonathan Janetzki\\{\small{\url{jonjanetzki@gmail.com}}}}
-\date{July 21, 2017}
+\date{\today}
 \publishers{
 Information Systems Group\\
 ~\\
