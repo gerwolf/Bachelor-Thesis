@@ -4,13 +4,16 @@
 \label{sec:coheel}
 
 \subsubsection{Link score}
+\label{sec:link_score}
 Probability that alias is link\\
 (Technically just a probability on Wikipedia as a sample)
 
 \subsubsection{Page score}
+\label{sec:page_score}
 Probability that an alias points to a specific page
 
 \subsubsection{Link context score}
+\label{sec:context_score}
 Bag of words retrieved form the text around a link (currently +- 20 words)\\
 generate tf-idf vectors\\
 compute cosine similarity between link vectors and page vectors
