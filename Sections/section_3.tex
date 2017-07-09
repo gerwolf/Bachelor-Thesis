@@ -31,15 +31,19 @@ The preprocessing of the raw data consists of multiple steps as depicted in Fig.
 \item refines the links within the Wikipedia and counts the references between each alias and entity. (Link analysis)
 \item searches for aliases of organizations in the Wikipedia text. (Alias analysis) 
 \item analyzes the frequencies of words in the Wikipedia text. (Word analysis)
-%- generates features to train the classifier. (Feature generation)
-%- trains the classifier. (Classifier training)
-%- performs NEL on newspaper articles. (NEL)
+\end{itemize}
+
+In the following steps, the system
+\begin{itemize}
+\item generates features to train the classifier. (Feature generation)
+\item trains the classifier. (Classifier training)
+\item performs NEL on newspaper articles. (NEL)
 \end{itemize}
 
 \begin{figure}[ht]
 	\centering
-  \includegraphics[width=0.7\textwidth]{Graphics/job_dependencies.png}
-	\caption{Dependencies between the jobs of the text mining pipeline}
+  \includegraphics[width=\textwidth]{Graphics/pipeline.pdf}
+	\caption{Data sources of the text mining pipeline, steps (green) and the resulting Named Entity Classifier (blue)}
 	\label{fig:job_dependencies}
 \end{figure}
 
@@ -63,18 +67,17 @@ As an alias may have multiple meanings, the classifier requires additional infor
 In NLP, a common approach to evaluate the content of raw text is the bag-of-words model [link]. This model considers a text as a multiset of its contained words, which means a set that may contain words multiple times. Although the order of the words is lost, the model can be used to determine whether different texts describe similar subjects or not. For example, two newspaper articles that contain the words "Automobil" (automobile) and "Ingolstadt" multiple times are likely to both address the German automobile manufacturer "Audi", as its headquarters are located in Ingolstadt.\\
 As the last step of the data preprocessing, the word analysis step extracts those bag of words for each Wikipedia article and each context of a link or extended link. We assume that 20 words before as well as after the link occurrence are representative for the meaning of the alias. This bag of words is called the context of the link.\\
 
-\paragraph{Text parser}
-\paragraph{Link cleaner}
-\paragraph{Redirect resolver}
-\paragraph{Link analysis}
-\paragraph{Company link filter}
-\paragraph{Link extender}
-\paragraph{Trie builder}
-\paragraph{Alias trie search}
-\paragraph{Alias counter}
-\paragraph{Document frequency counter}
-\paragraph{Term frequency counter}
-\paragraph{Cosine context comparator}
-
 \subsection{Classifier training}
-details following in the next section
+By means of the preprocessed data, the system extracts various features for named entities in text. It uses them to train a classifier model in order to recognize named entities in raw text without link annotations.\\
+
+\subsubsection{Input and output}
+For an alias within a text, the classifier decides whether it denotes a named entity or not. If it does, it specifies the respective named entity.\\
+As we wanted to build on reliable implementations of existing classifier models, we implemented the classifier as a binary classifier that operates on numerical values. This means that the classifier may only distinguish between two classes. Applied to NEL, the classifier's input is not only an alias, but also a concrete candidate for a named entity. It then decides whether the alias denotes this named entity or not.\\
+The random forest classifier model seemed to be the most appropriate model for this application.\\
+%todo: abgrenzen zu anderen classifier models, z.B. neuronale Netzwerke
+
+\subsubsection{Random forest classifier model}
+The classifier is a random forest classifier that is trained by means of the Spark MLlib, which is a library for distributed machine learning [source link]. A random forest classifier is a set of independently trained decision trees [source link]. Each of them makes a decision based on the given feature values. The classifier defines a decision function that depends on the number of trees that have made a respective decision. The easiest function is the majority vote.\\
+There are multiple parameters that influence the structure and quality of the forest: In our case, it consists of five trees at maximum and has not more than 32 bins per tree.\\
+~\\
+The next section describes the features for the classifier in detail.

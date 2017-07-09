@@ -10,3 +10,6 @@
 *.tcp
 *.toc
 *.tps
+
+# Raw graphics
+*.pptx
