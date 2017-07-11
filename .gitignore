@@ -11,5 +11,8 @@
 *.toc
 *.tps
 
+# Bibtex files
+*.bak
+
 # Raw graphics
 *.pptx
