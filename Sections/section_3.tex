@@ -1,83 +1,37 @@
-\section{Text Mining Pipeline}
-\label{sec:pipeline}
-This section describes how the raw data is preprocessed in order to train a classifier that performs NER and NEL on German newspaper articles.
-~\\
-Preprocesing on Wikipedia dump\\
-Explanation of jobs and their runtimes\\
-Tools: Stanford CoreNLP (Tokenizer), Apache Lucene (Stemmer)\\
-Data structures: Trie (for alias recognition)\\
+\section{Joint NER and NEL in Newspaper Articles}
+\label{sec:nel}
 
-\subsection{Raw data}
-The system uses Wikipedia and Wikidata as data sources to train the classifier that performs NEL. The following will describe both of them.
+Newspaper articles contain a lot of current information about business relations. E.g., a German article might contain a sentence like: "`Bosch liefert Servomotoren an die DB."' (English: "`Bosch delivers servo motors to the DB."') For a human it is obvious that this sentence represents a delivery relation between the entities: "`Robert Bosch GmbH"' and "`Deutsche Bahn AG"'. While "`DB"' could also abbreviate "`Deutsche Bank"' [todo: AG?], the technical context makes clear that the railroad company (?) is meant instead of the bank.
 
-\subsubsection{Wikipedia}
-As project aims on analyzing German newspaper articles, the German Wikipedia provides appropriate training data. It currently consists of more than 3.6 million articles [source]. The articles have 3 main components:
-\begin{itemize}
-\item Natural language text makes up most of the data.
-\item Links to other Wikipedia pages.
-\item Structured content, such as infoboxes.
-\end{itemize}
-The system will train the classifier based on the text and the links. It discards the structured content, as most of it is part of DBpedia [source], which is already included in the company graph [source reference to other BA].\\
-For faster processing, the system accesses this data via a dump of the Wikipedia [source link] that consists of XML and Wikimarkup. The whole dump has a size of 15.9 GiB.
+As such relations are useful for our business graph, we want to extract those from free text, such as newspaper articles. In order to do so, we need to perform joint NER and NEL beforehand. This section describes how we identify which businesses are mentioned in free texts.\\
 
-\subsubsection{Wikidata}
-The German Wikidata [source link] describes the same entities as the German Wikipedia. But in contrast to Wikipedia, it does not provide a textual description but an ontology for them. This includes the class of an entity, which can be a business or an organization [todo concrete identifier]. This information is used to train the classifier only with relevant data.\\
-As Wikipedia, the system also accesses the German Wikidata via a dump that is stored as JSON. It has a size of 90.2 GiB.
+\subsection{Newspaper data sources}
+Currently, we perform joint NER and NEL on the German Wikipedia and the German newspaper Spiegel Online [todo: link]. As Wikipedia already contains links to named entities, we use it as training data (see Sec.~\ref{sec:pipeline}) and ground truth for the evaluation [todo: reference jan]. Newspaper articles are missing such annotations.
 
-\subsection{Overview}
-The preprocessing of the raw data consists of multiple steps as depicted in Fig.~\ref{fig:job_dependencies}. The system
-\begin{itemize}
-\item filters the data sources for their relevant content and stores this into tables of an Apache Cassandra database. (Parsing)
-\item refines the links within the Wikipedia and counts the references between each alias and entity. (Link analysis)
-\item searches for aliases of organizations in the Wikipedia text. (Alias analysis) 
-\item analyzes the frequencies of words in the Wikipedia text. (Word analysis)
-\end{itemize}
+For Spiegel Online, we use a dump that consists of HTML, contains 260000 articles (?) and has a total size of (?) GB. On (?) average, the text of each article consists of (?) characters.\\
 
-In the following steps, the system
-\begin{itemize}
-\item generates features to train the classifier. (Feature generation)
-\item trains the classifier. (Classifier training)
-\item performs NEL on newspaper articles. (NEL)
-\end{itemize}
+\subsection{Process}
+The joint NER and NEL consists of multiple steps, as depicted in Fig.~\ref{fig:ner_nel_process}. Apart from the data import, the steps are independent from the data source so that they can be reused easily.
 
-\begin{figure}[ht]
-	\centering
-  \includegraphics[width=\textwidth]{Graphics/pipeline.pdf}
-	\caption{Data sources of the text mining pipeline, steps (green) and the resulting Named Entity Classifier (blue)}
-	\label{fig:job_dependencies}
-\end{figure}
+[todo: Grafik mit Schritten]
 
+\subsubsection{Data import}
+For each article, the Spiegel Online dump provides the title, the text and a unique internal ID. We extract these three values from the dump and store them in a Cassandra table. As the German Wikipedia dump provides similar information, we store it in a table with the exact same format. The only difference to Spiegel Online is that the title of an article already is a unique ID.\\
 
-\subsection{Data preprocessing}
-This subsection describes how the presented steps work in detail.
+\subsubsection{Potential named entity recognition}
+A mention of a named entity in a text is a chain of one or more consecutive tokens, where a token is a semantic element of a text. This is a word in most cases, but can also be a special character, such as a comma. The task of named entity recognition is to identify such chains in text. This step is important for our process, as NEL needs to be performed on a pre-selection of those. Otherwise it would have to try to link each n-gram in the text to a named entity, which would lead to a computational complexity that increases exponential with the number of tokens. This would be inacceptable for our task.
 
-\subsubsection{Parsing}
-For each article in Wikipedia, the parsing step converts the Wikimarkup to HTML by means of [source tool]. It then extracts the raw text and saves it into a Cassandra table along with the contained links to other Wikipedia entities.
+[todo: Example with comma]
 
-\subsubsection{Link analysis}
-At first, the link analysis step refines the extracted Wikipedia links. This means that it removes links to nonexistent pages and resolves links to redirect pages to their final target pages.\\
-Secondly, the link analysis generates statistics about how often a specific alias occurs as a link and which target pages it has how often. For example, the alias "BMW" occurs 5700 times as a link, and directs in 4264 cases to the page "BMW". In only 6 cases, it directs to the page "Berlins Most Wanted". The link analysis also generates these statistics vice versa by counting how often a specific page is linked by which aliases. This means, for example, that the page "BMW" is linked by the alias "BMW" in 4264 cases but only 155 times by "BMW AG". [graphic for this example] These statistics are helpful to identify aliases of organizations, estimate the probability that an alias means an organization (see Sec.~\ref{sec:link_score}) and that it means a specific organization (see Sec.~\ref{sec:page_score}).\\
+But in contrast to NER, we create a larger pre-selection of potential named entities that may signify a named entity depending on the context. This step is therefore called "`potential named entity recognition"'. It is much easier than NER, as NEL will decide to which named entity a named entity candidate links, which is a very similar task to deciding whether it links to a named entity at all. In our case, this is what NEL will do later on.
 
-\subsubsection{Alias analysis}
-Most of the links [concrete number] that are contained in Wikipedia are not relevant for the desired company graph, as they do not link to an organization. Wikidata provides an ontology that allows to identify which of Wikipedia's entities is an organization. This could be used to discard all links that do not link to an organization. But instead, the alias analysis uses the statistic from the previous step that lists all occurring aliases for a specific page to find all aliases that link to an organization. Only after it has determined these aliases, the alias analysis removes all those links that have an alias that directs to an organization in no case. In this way, the system retains links that do not link to an organization but have an alias of an organization. Those links are a valuable true negatives that are used to train the classifier that identifies mentions of organizations in raw text later on [reference to classifier training].\\
-To gain even more training data for the classifier, the alias analysis builds a trie (a character based prefix tree) that contains all known aliases. It then uses the trie to identify all occurrences of organization aliases in Wikipedia articles that are no links. The alias analysis assumes aliases that also occur as a link in the same article as meaning the same entity. It saves them as so-called extended links, which serve as true positives. If aliases have no corresponding link in the same article, the alias analysis saves them as a so-called trie hit, which serve as true negatives.\\
+We find candidates of named entities simply by selecting all those token chains that were named entities of organizations in the training data (see Sec.~\ref{sec:alias_analysis}). An efficient way to match those is by means of a trie, which we implemented as a token based prefix tree.
 
-\subsubsection{Word analysis}
-As an alias may have multiple meanings, the classifier requires additional information to disambiguate its occurrences in newspaper articles. A helpful feature is the context of those occurrences (see Sec.~\ref{sec:context_score}), since it strongly depends on their meaning. The classifier therefore needs a way to describe the content of raw text.\\
-In NLP, a common approach to evaluate the content of raw text is the bag-of-words model [link]. This model considers a text as a multiset of its contained words, which means a set that may contain words multiple times. Although the order of the words is lost, the model can be used to determine whether different texts describe similar subjects or not. For example, two newspaper articles that contain the words "Automobil" (automobile) and "Ingolstadt" multiple times are likely to both address the German automobile manufacturer "Audi", as its headquarters are located in Ingolstadt.\\
-As the last step of the data preprocessing, the word analysis step extracts those bag of words for each Wikipedia article and each context of a link or extended link. We assume that 20 words before as well as after the link occurrence are representative for the meaning of the alias. This bag of words is called the context of the link.\\
+[todo: explain logarithmic time]
 
-\subsection{Classifier training}
-By means of the preprocessed data, the system extracts various features for named entities in text. It uses them to train a classifier model in order to recognize named entities in raw text without link annotations.\\
+\subsubsection{Feature extraction}
+\subsubsection{NEL}
+\subsubsection{HTML Export}
+[todo: reference curation interface]
 
-\subsubsection{Input and output}
-For an alias within a text, the classifier decides whether it denotes a named entity or not. If it does, it specifies the respective named entity.\\
-As we wanted to build on reliable implementations of existing classifier models, we implemented the classifier as a binary classifier that operates on numerical values. This means that the classifier may only distinguish between two classes. Applied to NEL, the classifier's input is not only an alias, but also a concrete candidate for a named entity. It then decides whether the alias denotes this named entity or not.\\
-The random forest classifier model seemed to be the most appropriate model for this application.\\
-%todo: abgrenzen zu anderen classifier models, z.B. neuronale Netzwerke
-
-\subsubsection{Random forest classifier model}
-The classifier is a random forest classifier that is trained by means of the Spark MLlib, which is a library for distributed machine learning [source link]. A random forest classifier is a set of independently trained decision trees [source link]. Each of them makes a decision based on the given feature values. The classifier defines a decision function that depends on the number of trees that have made a respective decision. The easiest function is the majority vote.\\
-There are multiple parameters that influence the structure and quality of the forest: In our case, it consists of five trees at maximum and has not more than 32 bins per tree.\\
-~\\
-The next section describes the features for the classifier in detail.
+Random forest classifier\\
