@@ -16,3 +16,6 @@
 
 # Raw graphics
 *.pptx
+
+# Scripts
+*.bat
