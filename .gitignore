@@ -10,6 +10,8 @@
 *.tcp
 *.toc
 *.tps
+*.out
+*.tiw
 
 # BibTex files
 *.bak

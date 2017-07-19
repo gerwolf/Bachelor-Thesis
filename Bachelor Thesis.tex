@@ -10,10 +10,12 @@
 \usepackage{textcomp,amsmath}     % Mathezeichen etc.
 \usepackage{graphicx}             % Graphiken einbinden
 \usepackage[utf8]{inputenc}				% direkte Eingabe von Umlauten & Co. (Vorsicht: Encoding im Editor muss auch UTF-8 sein!)
-
-% bibtex
 \usepackage{url}
-\bibliographystyle{plaindin}      % BibTeX Styles nach Norm DIN 1505
+\usepackage{hyperref}
+\usepackage{datetime}							% \formatdate
+
+\usepackage[hang]{footmisc} % Consistent footnote indentation for multiline footnotes
+\setlength\footnotemargin{10pt}
 
 \renewenvironment{abstract}[1]
 % https://tex.stackexchange.com/questions/151583/how-to-adjust-the-width-of-abstract
@@ -35,13 +37,14 @@
   \strut#1\strut
   \end{tabular}
 }
+
 \titlehead{
 \includegraphics{Graphics/hpi_logo_cmyk_wb_sl2}
 } \subject{Bachelor Thesis}
 \title{Feature Extraction for Business Entity Linking in Newspaper Articles
 \\ \bigskip 
 \large{Merkmalsextraktion zur Unternehmenserkennung in Zeitungsartikeln}}
-\author{Jonathan Janetzki\\{\small{\url{jonjanetzki@gmail.com}}}}
+\author{Jonathan Janetzki\\ \small{\href{mailto:jonjanetzki@gmail.com}{\nolinkurl{jonjanetzki@gmail.com}}}}
 \date{\today}
 \publishers{
 Information Systems Group\\
@@ -82,6 +85,7 @@ Michael Loster}
 \newpage
 \input{sections/references}
 %\input{sections/glossary}
+\newpage
 \input{sections/statutory_declaration}
 
 \end{document}

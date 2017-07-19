@@ -25,13 +25,22 @@ A mention of a named entity in a text is a chain of one or more consecutive toke
 
 But in contrast to NER, we create a larger pre-selection of potential named entities that may signify a named entity depending on the context. This step is therefore called "`potential named entity recognition"'. It is much easier than NER, as NEL will decide to which named entity a named entity candidate links, which is a very similar task to deciding whether it links to a named entity at all. In our case, this is what NEL will do later on.
 
-We find candidates of named entities simply by selecting all those token chains that were named entities of organizations in the training data (see Sec.~\ref{sec:alias_analysis}). An efficient way to match those is by means of a trie, which we implemented as a token based prefix tree.
+We find candidates of named entities simply by selecting all those token chains that were named entities of organizations within the training data (see Sec.~\ref{sec:alias_analysis}). An efficient way to match those is by means of a trie, which we implemented as a token based prefix tree.\\
 
 [todo: explain logarithmic time]
 
-\subsubsection{Feature extraction}
-\subsubsection{NEL}
-\subsubsection{HTML Export}
-[todo: reference curation interface]
 
-Random forest classifier\\
+\subsubsection{Feature extraction}
+Before we can perform NEL on the link candidates, we need to extract features from them that are characteristic for links to specific targets. Inspired by the CohEEL project~\cite{coheel}, we decided to use three features: The link score, the entity score and the context score. Section~\ref{sec:features} describes them in detail.
+
+We extract all these features for each link candidate. As we have a lot of explicit link annotations [todo: number] in Wikipedia, we also extracted these features from those links as well as from occurrences of organization aliases that do not signify an organization so that we have comparable labeled data.\\
+
+
+\subsubsection{NEL}
+By means of the labeled composite features and new ones extracted for each link candidate, we can reduce the task of NEL to a classification problem: By training a classifier model with the ground truth data it can decide whether each link candidate links to an organization or not and if it does, to which. Ehmüller~\cite{ehmueller} describes how the classifier works in detail and which configurations leads to the best results.
+
+Now we know where and which organizations are mentioned in a German newspaper article. Where a text mentions multiple organizations, it is likely that it describes a relation between those. Schneider~\cite{schneider} researched how we can extract those relations in order to enrich the \textit{German Corporate Graph}.\\
+
+
+\subsubsection{HTML Export}
+If the user of our generated \textit{German Corporate Graph} finds a business relation that is unexpected, or if they simply want to comprehend how it was retrieved, it is necessary to provide a reference to the respective part of the original newspaper article, if applicable. An additional visualization of how the relation was extracted makes this even more useful. In terms of the joint NER and NEL process, we show where we have linked which tokens to which organizations. Therefore we enrich the original texts with HTML-links from the tokens to the Wikipedia article of their respective entity. We then export the HTML article to our Curation interface~\cite{gruner}, where the user can explore the results of the joint NER and NEL process.\\
