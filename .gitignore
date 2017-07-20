@@ -12,6 +12,7 @@
 *.tps
 *.out
 *.tiw
+*.tmp
 
 # BibTex files
 *.bak
