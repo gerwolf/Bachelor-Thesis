@@ -1,0 +1,33 @@
+\addcontentsline{toc}{section}{Appendix}
+\section*{Appendix}
+
+\begin{figure}[h!]
+	\begin{tabular}{cc}
+	\subfloat[Distribution of the entity scores' ranks]{
+		\includegraphics[width = 0.45\textwidth]{Graphics/feature_evaluation/entity_scores_ranks.pdf}
+		\label{fig:entity_scores_ranks}
+	} &
+	\subfloat[Distribution of the context scores' ranks]{
+		\includegraphics[width = 0.45\textwidth]{Graphics/feature_evaluation/context_scores_ranks.pdf}
+		\label{fig:context_scores_ranks}
+	}\\
+	\subfloat[Distribution of the entity scores' differences to the highest value]{
+		\includegraphics[width = 0.45\textwidth]{Graphics/feature_evaluation/entity_scores_dtop.pdf}
+		\label{fig:entity_scores_dtop}
+	} &
+	\subfloat[Distribution of the context scores' differences to the highest value]{
+		\includegraphics[width = 0.45\textwidth]{Graphics/feature_evaluation/context_scores_dtop.pdf}
+		\label{fig:context_scores_dtop}
+	}\\
+	\subfloat[Distribution of the entity scores' differences to the next smaller value]{
+		\includegraphics[width = 0.45\textwidth]{Graphics/feature_evaluation/entity_scores_dsuc.pdf}
+		\label{fig:entity_scores_dsuc}
+	} &
+	\subfloat[Distribution of the context scores' differences to the next smaller value]{
+		\includegraphics[width = 0.45\textwidth]{Graphics/feature_evaluation/context_scores_dsuc.pdf}
+		\label{fig:context_scores_dsuc}
+	}
+	\end{tabular}
+	\caption{The second order features have a significantly different distribution for valid and invalid links. For \protect\subref{fig:entity_scores_dtop}, \protect\subref{fig:context_scores_dtop}, \protect\subref{fig:entity_scores_dsuc} and \protect\subref{fig:context_scores_dsuc}, the bin at the very left represents the value $+\infty$.}
+	\label{fig:distributions}
+\end{figure}
