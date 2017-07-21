@@ -1,6 +1,6 @@
 \section{Features for Business Entity Linking}
 \label{sec:features}
-To perform EL, we have to describe an identified link candidate by means of appropriate. On the one hand, they have to be expressive so that they allow us identify the correct businesses, on the other hand, they have to be simple enough to be comparable for our classifier model. Inspired by the CohEEL project~\cite{coheel}, we use three kinds of features:
+To perform EL, we have to describe an identified link candidate using appropriate features. On the one hand, they have to be expressive so that they allow us to identify the correct businesses, on the other hand, they have to be simple enough to be comparable for our classifier model. Inspired by the CohEEL project~\cite{coheel}, we use three kinds of features:
 
 \begin{enumerate}
 \item The link score and entity score are \textbf{statistical} features.
@@ -14,13 +14,13 @@ Apart from the second order features, each of them is a real number in the inter
 
 \subsection{Link score}
 \label{sec:link_score}
-The most expressive property of a link candidate is its alias $a_{lc}$. We use this to compute the link score $ls$, which denotes the probability that $a_{lc}$ hyperlinks to a business inside the German Wikipedia:
+The most significant property of a link candidate is its alias $a_{lc}$. We use this to compute the link score $ls$, which denotes the probability that $a_{lc}$ hyperlinks to a business inside the German Wikipedia:
 
 \begin{equation*} % *: suppress numbering
-ls(lc) = \frac{|\text{occurrences of $a_{lc}$ as link}|}{|\text{occurrences of $a_{lc}$}|}
+ls(a_{lc}) = \frac{|\text{occurrences of $a_{lc}$ as link}|}{|\text{occurrences of $a_{lc}$}|}
 \end{equation*}
 
-This feature allows to decide whether a business alias signifies a business or not. For example, the alias "Bank" (English: "bank" or "bench") occurs 2200 times as a link but 44000 times for total. It may link to a certain organization, such as the German "Sparda-Bank" union. But in most cases, it denotes a bank in general or an ordinary bench, which is not linked in most cases. The small link score of 0.05 reflects that the alias "Bank" is not likely to denote a certain entity.
+This feature allows deciding whether a business alias signifies a business or not. For example, the alias "Bank" (English: "bank" or "bench") occurs 2200 times as a link but 44000 times for total. It may link to a certain organization, such as the German "Sparda-Bank" union. But in most cases, it denotes a bank in general or an ordinary bench, which is not a link in most cases. The small link score of 0.05 reflects that the alias "Bank" is not likely to denote a certain entity.
 
 
 
@@ -30,7 +30,7 @@ As already mentioned, a business alias may signify different businesses in diffe
 \footnotetext{\url{https://www.telekom.com/de/konzern/weltweit/profile/die-deutsche-telekom-in-deutschland-336242}, last accessed on \formatdate{19}{7}{2017}.}
 
 \begin{equation*}
-es_{en}(lc) = \frac{|\text{occurrences of $a_{lc}$ as link to $en$}|}{|\text{occurrences of $a_{lc}$ as a link}|}
+es_{en}(a_{lc}) = \frac{|\text{occurrences of $a_{lc}$ as link to $en$}|}{|\text{occurrences of $a_{lc}$ as a link}|}
 \end{equation*}
 
 For the alias "Telekom" this results in an entity score of 0.64 for the entity "Deutsche Telekom AG" and 0.20 for "Telekom Deutschland GmbH". These values allow our EL step to prefer those businesses that are more likely than others.
@@ -38,16 +38,16 @@ For the alias "Telekom" this results in an entity score of 0.64 for the entity "
 
 \subsection{Context score}
 \label{sec:context_score}
-If our system would perform EL only based on the link score and entity score, it would never decide that an alias refers to an entity that has not the highest entity score for this alias. But depending on the context $c_{lc}$ of a link candidate it may be clear that an entity with a small entity score is meant. As already mentioned, this can be applied to the sentence: "\textit{Bosch liefert Servomotoren an die DB.}", which mentions "Deutsche Bahn AG" instead of "Deutsche Bank". Therefore we need a comparable mathematical representation of an link candidate's context.
+If our system would perform EL only based on the link score and entity score, it would never decide that an alias refers to an entity that has not the highest entity score for this alias. But depending on the context $c_{lc}$ of a link candidate, it may be clear that the alias means an entity with a small entity score. As previously discussed, we can apply this to the sentence: "\textit{Bosch liefert Servomotoren an die DB.}", which mentions "Deutsche Bahn AG" instead of "Deutsche Bank". Therefore we need a comparable mathematical representation of an link candidate's context.
 
 
 \subsubsection{Tf-idf contexts}
 \label{sec:tf_idf}
 We consider the bag of words of respectively 20 preceding and successive tokens (if existing) as sufficient for the disambiguation of a link candidate. This model counts how often which token occurred and disregards grammatical dependencies. We also perform stemming, which means that we normalize the tokens by discarding their grammatical forms. This generalizes the context even further and makes it easier comparable. Furthermore, we discard stop words that are very common in German texts and therefore considered as not expressive.
 
-When we compare contexts, we want that those words have a stronger impact that are more significant. The more a word occurs in a bag of words and the less it occurs outside it, the more it is considered as significant. This is a well-known requirement in the field of information extraction and commonly heuristically solved by means of the tf-idf measure~\cite{salton1988term}.
+When we compare contexts, we want that those words have a stronger impact that are more significant. The more a word occurs in a bag of words and the less it occurs outside it, the more it is considered as significant. This is a well-known requirement in the field of information extraction and commonly heuristically solved using the tf-idf measure~\cite{salton1988term}.
 
-To calculate this, we have to define the following values: The \textit{document frequency} $df_t$ is the number of documents in the text corpus that contain $t$ at least one time, which are Wikipedia articles in our case. For a total of $N$ documents in the corpus, the \textit{inverse document frequency} $idf_t$ is calculated as:
+To calculate this, we have to define the following values: The \textit{document frequency} $df_t$ is the number of documents in the text corpus that contain $t$ at least one time, which are Wikipedia articles in our case. For a total of $N$ documents in the corpus, we calculate the \textit{inverse document frequency} $idf_t$ as:
 
 \begin{equation*}
 idf_t = log\frac{N}{df_t}
@@ -59,27 +59,27 @@ The \textit{term frequency} $tf_{t,b}$ is the frequency of a token $t$ in a bag 
 w_{t,b} = tf_{t,b} \cdot idf_t
 \end{equation*}
 
-It describes the significance of the token. We use this measure to transform each bag of words $b$ into a vector $c_{lc}$ of tf-idf values for each contained token. We call this vector the \textit{tf-idf context} of a link candidate. This numerical representation of a context is easy comparable to other tf-idf vectors.
+It describes the significance of the token. We use this measure to transform each bag of words $b$ into a vector $c_{lc}$ of tf-idf values for each contained token. We call this vector the \textit{tf-idf context} of a link candidate. This numerical representation of a context is easily comparable to other tf-idf vectors.
 
 
 \subsubsection{Cosine similarity}
-To disambiguate an alias, we also compute a tf-idf vector $c_{en}$ from each German Wikipedia article of an entity $en$. We assume that a link candidate is likely to refer to a specific entity, when its tf-idf context $c_{lc}$ resembles the tf-idf vector of this entities' article, as they describe the same subject and probably use the same words. We therefore compute the similarity between both vectors, which is our third feature, the context score $cs$. We use the cosine similarity, which is a common approach to compare vectors~\cite{ricardo1999modern, salton1988term}:
+To disambiguate an alias, we also compute a tf-idf vector $c_{en}$ from each German Wikipedia article of an entity $en$. We assume that a link candidate is likely to refer to a specific entity, when its tf-idf context $c_{lc}$ resembles the tf-idf vector of this entities' article, as they describe the same topic and probably use the same words. Thus, we compute the similarity between both vectors, which is our third feature, the context score $cs$. We use the cosine similarity, which is a standard approach to compare vectors~\cite{ricardo1999modern, salton1988term}:
 
 \begin{equation*}
-cs_{en}(lc) = similarity(c_{lc}, c_{en}) = \frac{c_{lc} \cdot c_{en}}{|c_{lc}||c_{en}|}
+cs_{en}(c_{lc}) = similarity(c_{lc}, c_{en}) = \frac{c_{lc} \cdot c_{en}}{|c_{lc}||c_{en}|}
 \end{equation*}
 
 This leads to a value in the interval $[0, 1]$. If it is 1, the contexts are completely similar; if it is 0, they have no token in common.
 
 ~\\
-Thus, while the link score and entity score are statistical features that have always equal values for each pair of an alias and an entity candidate, the context score makes the system capable of disambiguating an alias based on its surrounding text.
+Thus, while the link score and entity score are statistical features that always have equal values for each pair of an alias and an entity candidate, the context score makes the system capable of disambiguating an alias based on its surrounding text.
 
 
 
 \subsection{Second order features}
-When the classifier disambiguates an alias, it has a only single link score, but one entity score and context score for each entity candidate. As not more than one entity may be correct, the entity scores and context scores are "competing" against each other. The classifier only makes a binary decision - whether an alias with a given context refers to a given entity or not - so it cannot consider how likely the alternative entities are.
+When the classifier disambiguates an alias, it has an only single link score, but one entity score and context score for each entity candidate. As not more than one entity may be correct, the entity scores and context scores are "competing" against each other. The classifier only makes a binary decision - whether an alias with a given context refers to a given entity or not - so it cannot consider how likely the alternative entities are.
 
-Second order features are additional values for scores that represent their proportion to such competing scores. By means of second order features, the classifier is able to regard, e.g., that an entity is likely for an alias, because it has the highest entity score, although it is relatively small.
+Second order features are additional values for scores that represent their proportion to such competing scores. Using second order features, the classifier can regard, e.g., that an entity is likely for an alias, because it has the highest entity score, although it is relatively small.
 
 For each entity score and context score, we add the following second order features:
 
@@ -91,4 +91,4 @@ For each entity score and context score, we add the following second order featu
 \item The \textbf{absolute difference to the next smaller value} $\Delta succ$ also lies in the interval $(0, 1]$. Since it is not defined for the smallest value, we use $+\infty$ for it.
 \end{enumerate}
 
-In this way we supplement each value for both the entity score and the context score with three additional values.
+In this way, we supplement each value for both the entity score and the context score with three additional values.

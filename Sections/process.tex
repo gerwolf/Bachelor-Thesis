@@ -1,15 +1,15 @@
 \section{Combined NER and EL in Newspaper Articles}
 \label{sec:ner_el}
-Newspaper articles contain a lot of recent information about business relations. E.g., a German article might contain a sentence like: "\textit{Bosch liefert Servomotoren an die DB.}" (English: "Bosch delivers servo motors to DB.")
+Newspaper articles contain a lot of recent information about business relations. E.g., a German article might include a sentence like: "\textit{Bosch liefert Servomotoren an die DB.}" (English: "Bosch delivers servo motors to DB.")
 
-For a human it is obvious that this sentence represents a delivery relation between the entities: "Robert Bosch GmbH" and "Deutsche Bahn AG". While "DB" could also abbreviate "Deutsche Bank AG", the machine related context makes clear that the railway company is meant instead of the bank.
+For a human, it is obvious that this sentence represents a delivery relation between the entities: "Robert Bosch GmbH" and "Deutsche Bahn AG". While "DB" could also abbreviate "Deutsche Bank AG", the machine related context makes clear that the alias refers to the railway company instead of the bank.
 
-As such relations are useful for the German Corporate Graph, we want to extract those from texts, such as newspaper articles. To do so, we need to perform NER and EL beforehand. We have combined both steps to a single process, since the EL depends on the results of the NER.
+As such relations are useful for the German Corporate Graph, we want to extract those from texts, such as newspaper articles. To do so, we need to perform NER and EL beforehand. We have combined both steps to a single process since the EL depends on the results of the NER.
 
 
 
 \subsection{Newspaper data sources}
-Currently, we perform combined NER and EL on the German Wikipedia\footnote{\url{https://de.wikipedia.org/}, last accessed on \formatdate{21}{7}{2017}.} and the German newspaper Spiegel Online\footnotemark{}. As Wikipedia already contains explicit links to named entities, we use it as training data (see Sec.~\ref{sec:preprocessing}) and ground truth for the evaluation~\cite{ehmueller}. Newspaper articles are missing such annotations.
+Currently, we perform combined NER and EL on the German Wikipedia\footnote{\url{https://de.wikipedia.org/}, last accessed on \formatdate{21}{7}{2017}.} and the German newspaper Spiegel Online\footnotemark{}. As Wikipedia already contains unambiguous hyperlinks to named entities, we use it as training data (see Sec.~\ref{sec:preprocessing}) and ground truth for the evaluation~\cite{ehmueller}. Newspaper articles are missing such annotations.
 \footnotetext{\url{http://www.spiegel.de/}, last accessed on \formatdate{21}{7}{2017}.}
 
 For Spiegel Online, we use a dump that consists of HTML, contains 240,000\footnotemark{} articles and has a total size of 22 GiB. On average, each article's text consists of 550 tokens, where a token is a semantic element of a text. This is a word in most cases, but can also be a special character, such as a comma.
@@ -25,7 +25,7 @@ For Spiegel Online, we use a dump that consists of HTML, contains 240,000\footno
 	\label{fig:ner_el_process}
 \end{figure}
 
-The combined NER and EL consists of multiple steps, as depicted in Figure~\ref{fig:ner_el_process}. Apart from the data import, the steps are independent from the newspaper source so that they can be reused easily. The following paragraphs explain the steps in detail.
+The combined NER and EL process consists of multiple steps, as depicted in Figure~\ref{fig:ner_el_process}. Apart from the data import, the steps are independent of the newspaper source so that we are able to use them for any other as well. The following paragraphs explain the steps in detail.
 
 
 \paragraph{Newspaper import}
@@ -33,22 +33,22 @@ For each article, the Spiegel Online dump provides the title, the text and a uni
 
 
 \paragraph{Link candidate recognition}
-A mention of a named entity in a text is a chain of one or more consecutive tokens, which is also called an n-gram for $n$ tokens. The task of named entity recognition is to identify such n-grams. This step is important for our process, as EL needs to be performed on a pre-selection of those. Otherwise it would have to try to link each n-gram in the text to a named entity, which would lead to a computational complexity that increases exponentially with $n$. This would be unacceptable for economical use.
+A mention of a named entity in a text is a chain of one or more consecutive tokens, which is also called an n-gram for $n$ tokens. The task of named entity recognition is to identify such n-grams. This step is important for our process, as we need to perform EL on a pre-selection of those. Otherwise, it would have to try to link each n-gram in the text to a named entity, which would lead to a computational complexity that increases exponentially with $n$. This would be unacceptable for economical use.
 
-In contrast to NER, we do not search for named entities, but for n-grams that may signify a named entity depending on their context. This creates a larger pre-selection of \textit{link candidates}. Our EL will later on decide to which entity a link candidate refers, which is a very similar task to deciding whether it refers to a named entity at all.
+In contrast to NER, we do not search for named entities, but for n-grams that may signify a named entity depending on their context. This creates a larger pre-selection of \textit{link candidates}. Our EL will, later on, decide to which entity a link candidate refers, which is a very similar task to determining whether it refers to a named entity at all.
 
-We find candidates of named entities simply by selecting all those n-grams that were named entities of organizations within the training data. An efficient way to match those in texts is by means of a trie that we have constructed during the preprocessing of the raw data (see Sec.~\ref{sec:alias_analysis}, Alias analysis).
+We find candidates of named entities simply by selecting all those n-grams that were named entities of organizations within the training data. An efficient way to match those in texts is using a trie that we have constructed during the preprocessing of the raw data (see Sec.~\ref{sec:alias_analysis}, Alias analysis).
 
 
 \paragraph{Feature extraction}
-Before we can perform EL on the link candidates, we need to extract features from them that are characteristic for links to specific targets (see Sec.~\ref{sec:features}). All the feature values we compute for a single link candidate are called a \textit{composite feature} when considered combined. We therefore retrieve one composite feature for each link candidate. As we have 20 million link annotations in Wikipedia, we also computed these features from those valid links as well as from invalid links so that we have comparable labeled data. Invalid links are links that we have generated and from which we know that they do not refer to their intended entity. This are, e.g., occurrences of organization aliases that do not signify any organization.
+Before we can perform EL on the link candidates, we need to extract features from them that are characteristic for links to specific targets (see Sec.~\ref{sec:features}). All the feature values we compute for a single link candidate are called a \textit{composite feature} when considered combined. Therefore, we retrieve one composite feature for each link candidate. As we have 20 million link annotations in Wikipedia, we also computed these features from those valid links as well as from invalid links so that we have comparable labeled data. Invalid links are links that we have generated and from which we know that they do not refer to their intended entity. This are, e.g., occurrences of organization aliases that do not signify any organization.
 
 
 \paragraph{Entity linking}
-By means of the labeled composite features and the new ones extracted for each link candidate, we can reduce the task of EL to a classification problem: By training a classifier model with the ground truth data it can decide whether each link candidate links to an organization or not and if it does, to which. Ehmüller~\cite{ehmueller} describes how the classifier works in detail and which configuration leads to the best results.
+Using the labeled composite features and the new ones extracted for each link candidate, we can reduce the task of EL to a classification problem: By training a classifier model with the ground truth data it can decide whether each link candidate links to an organization or not and if it does, to which. Ehmüller~\cite{ehmueller} describes how the classifier works in detail and which configuration leads to the best results.
 
-Now we know where and which organizations are mentioned in a German newspaper article. Where a text refers to multiple organizations, it is likely that it describes a relation between those. Schneider~\cite{schneider} researched how we can extract those relations in order to enrich the \textit{German Corporate Graph}.
+Now we know where and which organizations German newspapers articles mentions. If a text refers to multiple businesses, it is likely that it describes a relation between them. Schneider~\cite{schneider} researched how we can extract those relations in order to enrich the \textit{German Corporate Graph}.
 
 
 \paragraph{HTML export}
-The user of our generated \textit{German Corporate Graph} may find a business relation that is unexpected, or simply want to comprehend how it was retrieved. In this case, it is necessary to provide a reference to the respective part of the original newspaper article, if applicable. An additional visualization of how the relation was extracted makes this even more useful. In terms of the combined NER and EL process, we show where we have linked which tokens to which organizations. Therefore we enrich the original texts with HTML-links from the aliases to the Wikipedia article of their respective entity. We then export the HTML article to our Curation interface~\cite{gruner} with which the user can explore the results.
+The user of our generated \textit{German Corporate Graph} may find a business relation that is unexpected, or simply want to comprehend how it was retrieved. In this case, it is necessary to provide a reference to the respective part of the original newspaper article, if applicable. An additional visualization of how we have extracted the relation makes this even more useful. Regarding the combined NER and EL process, we show where we have linked which tokens to which organizations. Therefore we enrich the original texts with HTML-links from the aliases to the Wikipedia article of their respective entity. We then export the HTML article to our Curation interface~\cite{gruner} with which the user can explore the results.

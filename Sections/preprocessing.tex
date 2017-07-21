@@ -1,15 +1,15 @@
 \section{Preprocessing}
 \label{sec:preprocessing}
-In order to extract these features and use them to train a classifier for EL, we have to preprocess our data sources.
+To extract these features and use them to train a classifier for EL, we have to preprocess our knowledge bases.
 
 
 
-\subsection{Raw data}
-Besides Wikipedia, we also use Wikidata as data source, because it contains an ontology of Wikipedia's entities.
+\subsection{Knowledge bases}
+Besides Wikipedia, we also use the knowledge base Wikidata, because it contains an ontology of Wikipedia's entities.
 
 
 \paragraph{Wikipedia}
-As we want to perform EL on German newspaper articles, the German Wikipedia provides appropriate training data. It currently consists of more than 3.6 million articles. Besides the text, the articles contain hyperlinks to other entities of Wikipedia. They also may contain infoboxes, which we discard. Their content is also part of DBpedia\footnotemark{}, which we already include in the German Company Graph.
+As we want to perform EL on German newspaper articles, the German Wikipedia provides appropriate training data. It currently consists of more than 3.6 million articles. Besides the texts, Wikipedia contains hyperlinks between the articles. They also may include infoboxes, which we discard. Their content is also part of DBpedia\footnotemark{}, which we already include in the German Company Graph.
 \footnotetext{\url{http://wiki.dbpedia.org/}, last accessed on \formatdate{21}{7}{2017}.}
 
 For faster processing, the system accesses Wikipedia via a dump\footnotemark{} that consists of XML and wikitext and has a size of 16 GiB.
@@ -17,7 +17,7 @@ For faster processing, the system accesses Wikipedia via a dump\footnotemark{} t
 
 
 \paragraph{Wikidata}
-Wikidata\footnotemark{} provides structured data for the entities of the German Wikipedia. It currently describes more than 24 million entities. This includes their classes, which can be, e.g., a business or, more general, an organization. This information is important for us to identify which of Wikipedia's entities are relevant for the German Corporate Graph.
+Wikidata\footnotemark{} provides structured data for the entities of the German Wikipedia. It currently describes more than 24 million entities. This includes their classes, which can be, e.g., a business or, more generally, an organization. This information is important for us to identify which of Wikipedia's entities are relevant for the German Corporate Graph.
 \footnotetext{\url{https://www.wikidata.org/}, last accessed on \formatdate{21}{7}{2017}.}
 
 The system also accesses Wikidata via a dump\footnotemark{}. It is stored in JSON format and has a size of 90 GiB.
@@ -37,34 +37,35 @@ The preprocessing of the raw data consists of multiple steps as depicted in Figu
 
 
 \paragraph{Wikipedia import}
-For each article in Wikipedia, we convert the wikitext to HTML by means of the Bliki library\footnotemark{}. We then extract the raw text and and all contained links to other Wikipedia entities.
+For each article in Wikipedia, we convert the wikitext to HTML using the Bliki library\footnotemark{}. We then extract the raw text and all contained links to other Wikipedia entities.
 \footnotetext{\url{https://github.com/idio/bliki}, last accessed on \formatdate{21}{7}{2017}.}
 
 
 \paragraph{Wikidata import}
-In order to make use of Wikidata's ontology, we parse each of its articles and tag those entities that denote an organization. Similar entities in Wikidata and Wikipedia have also the same names so that we can apply this information to the corresponding Wikipedia entities.
+To make use of Wikidata's ontology, we parse each of its articles and tag those entities that denote an organization. Similar entities in Wikidata and Wikipedia also have the same names so that we can apply this information to the corresponding Wikipedia entities.
 
 
 \paragraph{Link analysis}
-At first, the link analysis step refines the extracted Wikipedia links. This means that it removes links to nonexistent pages and resolves links to redirect pages to their final target pages. Secondly, we count how often each alias of a link occurs as link in order to calculate its link score. We also compute its entity score by counting how often each alias refers to which entity. By doing this also vice versa, we know how often an entity is referred by which aliases.
+At first, the link analysis step refines the extracted Wikipedia links. This means that it removes links to missing pages and resolves links to redirect pages to their final target pages. Secondly, we count how often each alias of a link occurs as a link to calculate its link score. We also compute its entity score by counting how often each alias refers to which entity. By doing this also vice versa, we know how often an entity is referred by which aliases.
 
 
 \paragraph{Alias analysis}
 \label{sec:alias_analysis}
-Most of Wikipedia's links are not relevant for us, as they do not refer to an organization. By means of Wikidata's ontology, we could discard all those links. But instead, we use the statistic that we have generated during the link analysis, which lists all occurring aliases for a specific entity. By doing this, we find all aliases that may link to an organization. Only after we have determined these aliases, the we remove all those links that have an alias, which never refer to an organization. These make up 90\% of Wikipedia's links. In this way, the system retains links that do not link to an organization but have an alias of an organization. Those links are a valuable, since their features provide negative training data for our classifier.
+Most of Wikipedia's links are not relevant for us, as they do not refer to an organization. Using Wikidata's ontology, we could discard all those links. But instead, we use the statistic that we have generated during the link analysis, which lists all occurring aliases for a specific entity. By doing this, we find all aliases that may link to an organization. Only after we have determined these aliases, we remove all those links that have an alias, which never refers to an organization. These make up 90\% of Wikipedia's links. In this way, the system retains links that do not link to any organization but have an alias of an organization. Those links are a valuable since their features provide negative training data for our classifier.
 
-To gain even more training data for the classifier, the we build a trie (a token based prefix tree) that contains all known aliases. By means of this, we then find all occurrences of organization aliases in Wikipedia articles that do not refer to an entity. We assume that aliases, which also occur as a link in the same article, also mean the same entity. We store them as \textit{extended links}, which serve as additional positive training data. If aliases have no corresponding link in the same article, the we save them as \textit{trie hits}, which serve as negative training data.
+To gain even more training data for the classifier, we build a trie (a token based prefix tree) that contains all known aliases. Using this, we then find all occurrences of organization aliases in Wikipedia articles that do not refer to an entity. We assume that aliases, which also occur as a link in the same article, also mean the same entity. We store them as \textit{extended links}, which serve as additional positive training data. If aliases have no corresponding link in the same article, we save them as \textit{trie hits}, which serve as negative training data.
 
 
-\paragraph{Word analysis}
-To also compute the context features for the training data, we need to determine the tf-idf vectors for those links that we have collected. We therefore count the document frequency for each token in Wikipedia that is not a stop word. We also determine the term frequency of each token inside a link's or extended link's context and inside each entire Wikipedia article. This allows us to compute the tf-idf vectors for each link and entity, as described in Section~\ref{sec:tf_idf}.
+\paragraph{Context analysis}
+To also compute the context features for the training data, we need to determine the tf-idf vectors for those links that we have collected. Therefore, we count the document frequency for each token in Wikipedia that is not a stop word. We also determine the term frequency of each token inside a link's or extended link's context and each entire Wikipedia article. This allows us to compute the tf-idf vectors for each link and entity, as described in Section~\ref{sec:tf_idf}.
 
 ~\\
+
 These extracted features for each of Wikipedia's relevant links constitute our training data. We use it for a classifier that performs business entity linking on newspaper articles.
 
 \iffalse
 \subsection{Classifier training}
-By means of the preprocessed data, the system extracts various features for named entities in text. It uses them to train a classifier model in order to recognize named entities in raw text without link annotations.
+Using the preprocessed data, the system extracts various features for named entities in text. It uses them to train a classifier model in order to recognize named entities in raw text without link annotations.
 
 \subsubsection{Input and output}
 For an alias within a text, the classifier decides whether it denotes a named entity or not. If it does, it specifies the respective named entity.
@@ -74,7 +75,7 @@ As we wanted to build on reliable implementations of existing classifier models,
 The random forest classifier model seemed to be the most appropriate model for this application.
 
 \subsubsection{Random forest classifier model}
-The classifier is a random forest classifier that is trained by means of the Spark MLlib, which is a library for distributed machine learning [source link]. A random forest classifier is a set of independently trained decision trees [source link]. Each of them makes a decision based on the given feature values. The classifier defines a decision function that depends on the number of trees that have made a respective decision. The easiest function is the majority vote.
+The classifier is a random forest classifier that is trained using the Spark MLlib, which is a library for distributed machine learning [source link]. A random forest classifier is a set of independently trained decision trees [source link]. Each of them makes a decision based on the given feature values. The classifier defines a decision function that depends on the number of trees that have made a respective decision. The easiest function is the majority vote.
 
 There are multiple parameters that influence the structure and quality of the forest: In our case, it consists of five trees at maximum and has not more than 32 bins per tree.
 \fi
