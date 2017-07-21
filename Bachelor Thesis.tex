@@ -11,12 +11,14 @@
 \usepackage{graphicx}             % Graphiken einbinden
 \usepackage[utf8]{inputenc}				% direkte Eingabe von Umlauten & Co. (Vorsicht: Encoding im Editor muss auch UTF-8 sein!)
 \usepackage{url}
-\usepackage{hyperref}
 \usepackage{datetime}							% \formatdate
 \usepackage{subfig}								% \subfloat
 
 \usepackage[hang]{footmisc} % Consistent footnote indentation for multiline footnotes
 \setlength\footnotemargin{10pt}
+\usepackage{hyperref}				% Load this after footmisc to prevent footnote warnings
+
+\pdfsuppresswarningpagegroup=1	% Mutes the warning: "PDF inclusion: multiple PDFs with page group"
 
 \renewenvironment{abstract}[1]
 % https://tex.stackexchange.com/questions/151583/how-to-adjust-the-width-of-abstract
@@ -54,6 +56,7 @@ Information Systems Group\\
 Prof. Dr. Felix Naumann\\
 Toni Grütze\\
 Michael Loster}
+
 
 
 \begin{document}

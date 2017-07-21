@@ -1,4 +1,4 @@
-\section{Joint NER and NEL in Newspaper Articles}
+\section{Joint NER and EL in Newspaper Articles}
 \label{sec:nel}
 
 Newspaper articles contain a lot of current information about business relations. E.g., a German article might contain a sentence like: "`Bosch liefert Servomotoren an die DB."' (English: "`Bosch delivers servo motors to the DB."') For a human it is obvious that this sentence represents a delivery relation between the entities: "`Robert Bosch GmbH"' and "`Deutsche Bahn AG"'. While "`DB"' could also abbreviate "`Deutsche Bank"' [todo: AG?], the technical context makes clear that the railroad company (?) is meant instead of the bank.
@@ -11,9 +11,14 @@ Currently, we perform joint NER and NEL on the German Wikipedia and the German n
 For Spiegel Online, we use a dump that consists of HTML, contains 260000 articles (?) and has a total size of (?) GB. On (?) average, the text of each article consists of (?) characters.\\
 
 \subsection{Process}
-The joint NER and NEL consists of multiple steps, as depicted in Fig.~\ref{fig:ner_nel_process}. Apart from the data import, the steps are independent from the data source so that they can be reused easily.
+The joint NER and NEL consists of multiple steps, as depicted in Fig.~\ref{fig:ner_el_process}. Apart from the data import, the steps are independent from the data source so that they can be reused easily.
 
-[todo: Grafik mit Schritten]
+\begin{figure}[ht]
+	\centering
+  \includegraphics[width=\textwidth]{Graphics/pipeline.pdf}
+	\caption{Steps of the joint NER and EL process}
+	\label{fig:ner_el_process}
+\end{figure}
 
 \subsubsection{Data import}
 For each article, the Spiegel Online dump provides the title, the text and a unique internal ID. We extract these three values from the dump and store them in a Cassandra table. As the German Wikipedia dump provides similar information, we store it in a table with the exact same format. The only difference to Spiegel Online is that the title of an article already is a unique ID.\\

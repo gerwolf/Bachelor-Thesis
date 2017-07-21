@@ -7,7 +7,7 @@ Our system needs be suitable for economical use. This can be expressed as two re
 \subsection{Significance of the features}
 Given a link candidate $lc=(a, c)$ consisting of an alias $a$ and its context $c$ and an entity $en$, the classifier decides whether $lc$ references $en$ or not. Note that, while the link candidate's entity score $es_{en}(a)$ and the context score $cs_{en}(c)$ depend on $en$, $ls(a)$ only depends on the alias itself. Therefore these features must allow a distinction between valid and invalid links regarding the given entity. In the following, I evaluate the distribution of the features based on a sample of 100,000 composite features and how expressive they are for this distinction.
 
-\begin{figure}[h]
+\begin{figure}[ht]
 	\begin{tabular}{cc}
 	\subfloat[Composite distribution of the entity score and the context score]{
 		\includegraphics[width = 0.45\textwidth]{Graphics/feature_evaluation/composite_features.png}
