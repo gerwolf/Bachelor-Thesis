@@ -1,22 +1,14 @@
 \section{Conclusion and Outlook}
 \label{sec:conclusion}
-Ambiguous business aliases make business entity linking in newspaper articles a complex problem. It becomes possible by the extraction of expressive features, what we achieved by using three groups:
+Ambiguous business aliases make business entity linking in newspaper articles a complex problem. It becomes possible by the extraction of expressive features, what we achieved by using statistical features, a linguistic feature and additional second order features. All of them turned out to have a significant correlation to whether an alias in a text refers to a certain business entity or not. We therefore used them to perform combined NER and EL to determine where a newspaper article mentions which businesses. Thanks to this disambiguation of business aliases, we were able to analyze newspaper articles even further and extract business relations from them. We then inserted them into the German Corporate Graph that helps to get a better understanding of the German corporate landscape.
 
-\begin{enumerate}
-\item The link score and entity score are \textbf{statistical} features.
-\item The context score is a \textbf{linguistic} feature.
-\item For the entity score and the context score, we additionally retrieve \textbf{second order features}.
-\end {enumerate}
+Starting with this full operative system, the next steps would be more focused on adding more data sources and testing more features.
 
-All these features turned out to have a strong correlation to whether an alias in a text refers to a certain business entity or not. We therefore used them to perform joint NER and EL to determine where a newspaper article mentions which businesses. Thanks to the disambiguated aliases, we were able to analyze newspaper articles even further and extract business relations from them. We then inserted them into the German Corporate Graph that helps to get a better understanding of the German corporate landscape.
-
-Starting with this full operative system, the next steps would be more focused on adding more data sources and extracting and testing more features.
-
-The most promising improvement is to expand the training data. So far, we only used the German Wikipedia, but also structured data sources, for example Wikidata, explicitly list aliases of businesses. Those can be used to detect even more of their mentions in texts. Moreover, we only used Spiegel Online to perform joint NER and EL. To extract more business relations, we should include other German newspapers with an economical focus, such as heise online\footnotemark{}.
+The most promising improvement is to expand the training data. So far, we only used the German Wikipedia and Wikidata. But these do by far not cover all German businesses. Additional structured data sources, such as Implisense, would provide more business aliases. Those can be used to detect even more of their mentions in texts. Besides, we only used Spiegel Online to perform combined NER and EL. To extract more business relations, we should include other German newspapers with an economical focus, such as heise online\footnotemark{}.
 \footnotetext{\url{https://www.heise.de/}, last accessed on \formatdate{20}{7}{2017}.}
 
-As many businesses do not have a Wikipedia article or only few distinctive words in it, the enrichment of their tf-idf vectors would helpt to disambiguate aliases in a text. More of those words may be retrieved from, e.g, the homepage of the business or an article about its location. As some words are typical for an entire business sector, such as "Motor" for the automobile industry, tf-idf vectors can be generated from multiple articles regarding the same sector. These vectors can then be used for businesses without an article.
+Since many businesses do not have a Wikipedia article or only few distinctive words in it, the enrichment of their tf-idf vectors would help to disambiguate aliases in a text. More of those words may be retrieved from, e.g, the homepage of the business or an article about its location. As some words are typical for an entire business sector, such as "Motor" for the automobile industry, tf-idf vectors can be generated from multiple articles regarding the same sector. These vectors can then be used for businesses without an article.
 
-It is also advisable to disambiguate aliases based on other decisions inside the same newspaper article. Since it is unlikely that the same alias references more than one business in one article, the EL process should prefer to link to those targets that were detected previously.
+It is also advisable to disambiguate aliases based on other decisions inside the same newspaper article. It is unlikely that the same alias references more than one business in one article, hence the EL process should prefer to link to those targets that were detected previously in it.
 
 By implementing these improvements, the system may become capable of determining where a text refers to which businesses for most of the German companies. This would eventually help to make a lot of the knowledge of economical German newspaper articles machine-understandable.
