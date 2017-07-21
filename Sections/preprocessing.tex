@@ -1,6 +1,6 @@
 \section{Text Mining Pipeline}
 \label{sec:pipeline}
-This section describes how the raw data is preprocessed in order to train a classifier that performs NER and NEL on German newspaper articles.
+This section describes how the raw data is preprocessed in order to train a classifier that performs NER and EL on German newspaper articles.
 ~\\
 Preprocesing on Wikipedia dump\\
 Explanation of jobs and their runtimes\\
@@ -8,7 +8,7 @@ Tools: Stanford CoreNLP (Tokenizer), Apache Lucene (Stemmer)\\
 Data structures: Trie (for alias recognition)\\
 
 \subsection{Raw data}
-The system uses Wikipedia and Wikidata as data sources to train the classifier that performs NEL. The following will describe both of them.
+The system uses Wikipedia and Wikidata as data sources to train the classifier that performs EL. The following will describe both of them.
 
 \subsubsection{Wikipedia}
 As project aims on analyzing German newspaper articles, the German Wikipedia provides appropriate training data. It currently consists of more than 3.6 million articles [source]. The articles have 3 main components:
@@ -37,7 +37,7 @@ In the following steps, the system
 \begin{itemize}
 \item generates features to train the classifier. (Feature generation)
 \item trains the classifier. (Classifier training)
-\item performs NEL on newspaper articles. (NEL)
+\item performs EL on newspaper articles. (EL)
 \end{itemize}
 
 \begin{figure}[ht]
@@ -73,7 +73,7 @@ By means of the preprocessed data, the system extracts various features for name
 
 \subsubsection{Input and output}
 For an alias within a text, the classifier decides whether it denotes a named entity or not. If it does, it specifies the respective named entity.\\
-As we wanted to build on reliable implementations of existing classifier models, we implemented the classifier as a binary classifier that operates on numerical values. This means that the classifier may only distinguish between two classes. Applied to NEL, the classifier's input is not only an alias, but also a concrete candidate for a named entity. It then decides whether the alias denotes this named entity or not.\\
+As we wanted to build on reliable implementations of existing classifier models, we implemented the classifier as a binary classifier that operates on numerical values. This means that the classifier may only distinguish between two classes. Applied to EL, the classifier's input is not only an alias, but also a concrete candidate for a named entity. It then decides whether the alias denotes this named entity or not.\\
 The random forest classifier model seemed to be the most appropriate model for this application.\\
 %todo: abgrenzen zu anderen classifier models, z.B. neuronale Netzwerke
 

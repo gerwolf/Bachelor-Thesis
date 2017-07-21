@@ -1,6 +1,6 @@
 \section{Evaluation}
 \label{sec:evaluation}
-Our system needs be suitable for economical use. This can be expressed as two requirements: On the one hand, the found joint NER and NEL process should find as many correct references as possible to organizations. While Ehmüller~\cite{ehmueller} evaluates this in terms of the standard measures precision, recall and $F_1$ score, we focus on how significant the features are without considering a certain classifier model. On the other hand, our system has to be capable of processing large amounts of data in reasonable time. As our project aims on solving this by means of cluster computing, we evaluate how well the described preprocessing scales out.
+Our system needs be suitable for economical use. This can be expressed as two requirements: On the one hand, the found joint NER and EL process should find as many correct references as possible to organizations. While Ehmüller~\cite{ehmueller} evaluates this in terms of the standard measures precision, recall and $F_1$ score, we focus on how significant the features are without considering a certain classifier model. On the other hand, our system has to be capable of processing large amounts of data in reasonable time. As our project aims on solving this by means of cluster computing, we evaluate how well the described preprocessing scales out.
 
 
 
@@ -37,7 +37,7 @@ Figure~\ref{fig:composite_features} gives an overview about the composite distri
 
 \item The entity score is more expressive than the context score, as the clusters can only be separated by means of the entity score.
 
-\item There is a \textbf{correlation} between the entity score and the context score: There are far more valid links in the upper right half than in the lower left half of the diagram. This means, that the entity score and context score are "`confirming"' each other.
+\item There is a \textbf{correlation} between the entity score and the context score: There are far more valid links in the upper right half than in the lower left half of the diagram. This means, that the entity score and context score are "confirming" each other.
 \end{enumerate}
 
 Now we consider the features separately to get a more concise understanding of their quality:
@@ -52,7 +52,7 @@ Figure~\ref{fig:entity_scores} shows the distribution of the entity scores. he e
 Finally, figure~\ref{fig:context_scores} shows the distribution of the context scores. Note that the frequency is scaled logarithmically. Although there is a large overlap between the valid and the invalid links, the distribution of the valid links is significantly shifted to higher context scores. For a context score of about 0.1, the context score has the least significance. The smaller or higher it becomes from there, the better the classifier can make its decisions.
 
 \paragraph{Second order features}
-Also the second order features have a high expressiveness, as shown in Figure~\ref{fig:second_order_features} in the appendix. Similar to the three features described above, they show significantly different distributions for valid and invalid links. Combined with them, the classifier improves the results of our NEL even further.
+Also the second order features have a high expressiveness, as shown in Figure~\ref{fig:second_order_features} in the appendix. Similar to the three features described above, they show significantly different distributions for valid and invalid links. Combined with them, the classifier improves the results of our EL even further.
 
 
 \subsection{Scale out}
